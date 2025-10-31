@@ -21,10 +21,6 @@ Login page backgrounds from [@ksushlapush](https://unsplash.com/@ksushlapush)
 > @import url("https://cdn.jsdelivr.net/gh/n00bcodr/jellyfish@main/10.11_fixes.css");
 > ```
 
-> [!NOTE]
-> Jellyfin Version 10.11 has dropped support for admin dashboard theming - https://github.com/jellyfin/jellyfin-web/issues/7220#issuecomment-3427290912
-> 
-> So theming for the admin dashboard does not work, and that is expected.
 
 
 ## 📑 Table of Contents
@@ -327,6 +323,23 @@ To completely replicate the look in the screenshots you'd need the below plugins
 
 - Works for Movies and TV Shows, should work fine mostly for Music and Books, although I don't use Jellyfin for either of them
 - Works on both mobile app and web browser, known to have issues / not work on Jellyfin Media Player
+
+
+
+> [!NOTE]
+> Jellyfin for good reason [removed the ability](https://github.com/jellyfin/jellyfin-web/issues/7220#issuecomment-3427290912) to add custom CSS in the dashboard in version 10.11.
+>
+> So direct theming for the admin dashboard does not work, and that is expected.
+>
+> Look at [10.11 Dashboard Theming](scripts/README.md#1011-dashboard-theming) for a work around. Try at your own risk!
+
+
+
+> [!NOTE]
+> This theme like many others themes works best only when you have Backdrops and Details Banner enabled in display settings
+>
+> Get the Plugin [JellyfinTweaks](https://github.com/n00bcodr/JellyfinTweaks) for a way to force enable the above two and more on all your devices.
+
 
 ---
 

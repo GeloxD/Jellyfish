@@ -47,6 +47,24 @@ Here's a breakdown of what each script does:
 </table>
 
 
+### [10.11 Dashboard Theming](10.11_dashboard_theming.js)
+
+> [!WARNING]
+> USE AT YOUR OWN RISK!!
+>
+> Jellyfin for good reason [removed the ability](https://github.com/jellyfin/jellyfin-web/issues/7220#issuecomment-3427290912) to add custom CSS in the dashboard in version 10.11.
+
+### Pre-Requisites:
+
+ - File Transformation Plugin - https://github.com/IAmParadox27/jellyfin-plugin-file-transformation/ (Not a must if you have the right permissions on index.html, but recommended)
+ - JavaScript Injector plugin https://github.com/n00bcodr/Jellyfin-JavaScript-Injector
+
+
+<table align="center">
+    <td><img src="../screenshots/10.11_dashboard.png" width="500"/></td>
+</table>
+
+
 🚀 Installation
 ---------------
 
