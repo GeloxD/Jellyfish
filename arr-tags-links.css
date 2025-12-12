@@ -5587,14 +5587,6 @@
   background-image: url("https://media.themoviedb.org/t/p/original/tpfmd22xEapb1aW2gzjSM5104rx.jpg");
 }
 
-/* TV+ */
-.itemExternalLinks a.arr-tag-link[data-tag-name*="tv" i] span {
-  display: none !important;
-}
-.itemExternalLinks a.arr-tag-link[data-tag-name*="tv" i]::after {
-  background-image: url("https://media.themoviedb.org/t/p/original/c8ryDZroFQtuyRVPBwXq5PLpTWV.jpg");
-}
-
 /* TV4 Play */
 .itemExternalLinks a.arr-tag-link[data-tag-name*="tv4play" i] span {
   display: none !important;
