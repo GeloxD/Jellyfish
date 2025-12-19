@@ -284,14 +284,15 @@ html
 }
 
 .libraryDocument.withSectionTabs .backgroundContainer {
-    backdrop-filter: blur(var(--blur)) brightness(.1) !important;
+    backdrop-filter: blur(var(--blur)) brightness(.3) !important;
     background-color: var(--secondary-background-transparent);
 }
 
 /* Hide backdrop image on homepage to work well with media bar */
 .libraryDocument.withSectionTabs .backdropImage {
-    display: none;
+    display: block !important;
 }
+
 
 /* Secondary, often slightly transparent, backgrounds for elements like drawers, dialogs, and content sections. */
 .layout-desktop .mainDrawer,                  /* Main navigation drawer (Desktop) */
