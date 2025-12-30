@@ -610,6 +610,11 @@ progress::-webkit-progress-value  /* Filled part of the progress bar (WebKit) */
     margin-left: 0px !important;
 }
 
+/* Move .quickConnectSettingsContainer to the center of the screen */
+div#quickConnectPreferencesPage {
+    margin-left: 25vw !important;
+}
+
 /* == Sidebar Styling (Mobile) == */
 /* Basic styling for the mobile sidebar. */
 .layout-mobile .mainDrawer {
@@ -2247,5 +2252,22 @@ h3.tagline {
 .layout-desktop #itemDetailPage:has(button.btnPlaystate[data-type="Book"]) .itemMiscInfo {
     margin-left: 11px !important;
     margin-top: 11px !important;
+}
+
+
+/* ~~~~~~~~~~~~~~~~~~~~ JELLYFIN MEDIA PLAYER (JMP) FIXES ~~~~~~~~~~~~~~~~~~~~ */
+/* Compatibility fixes for Jellyfin Media Player desktop app */
+
+/* JMP Quick Connect Settings Fix */
+.quickConnectSettingsContainer {
+    margin-left: 250px !important;
+}
+
+/* JMP Drawer Background Fix - For versions without :has() support */
+@supports not selector(:has(*)) {
+    .layout-desktop .backgroundContainer.withBackdrop + div .mainDrawer {
+        background: var(--secondary-background-color) !important;
+        backdrop-filter: none !important;
+    }
 }
 

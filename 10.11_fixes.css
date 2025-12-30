@@ -7,7 +7,7 @@
 /* 10.11.x+ Detail Page Fixes */
 /* Resize show/movie image on details page for 10.11 */
 .layout-desktop .detailImageContainer .card {
-    top: 1.8em !important;
+    top: 1em !important;
     width: 18.3vw !important;
     position: absolute !important;
 }
@@ -106,6 +106,14 @@ div#listChildrenCollapsible {
 
 .layout-desktop #itemDetailPage:has(.verticalSection[data-type="MusicAlbum"]) .detailPageWrapperContainer {
     margin-top: 20em !important;
+}
+
+/* JMP Fix for Detail Page Padding - 10.11 Specific */
+/* Fallback for Jellyfin Media Player without :has() support */
+@supports not selector(:has(*)) {
+    .layout-desktop .detailPageWrapperContainer .detailPagePrimaryContent {
+        min-height: 29vw !important;
+    }
 }
 
 .layout-desktop #itemDetailPage:has(div.detailImageContainer .cardImageIcon.person):has(.verticalSection[data-type="MusicAlbum"]) .mainDetailButtons {
