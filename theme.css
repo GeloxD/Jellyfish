@@ -500,6 +500,14 @@ progress::-webkit-progress-value  /* Filled part of the progress bar (WebKit) */
 	border-radius: 100px !important; /* Maintain pill shape on hover */
 	background-color: var(--primary-accent-color) !important; /* Use primary accent for background on hover */
 }
+
+/* Smooth scrolling for tab sliders */
+.scrollSlider,
+.emby-scroller {
+	scroll-behavior: smooth !important;
+	-webkit-overflow-scrolling: touch !important;
+
+}
 /* Remove default outline/shadow on focus for a cleaner look. */
 .raised.homeLibraryButton.emby-button:hover,
 .emby-tab-button:hover,
@@ -1989,6 +1997,7 @@ h3.tagline {
     background-color: var(--secondary-background-transparent);
 }
 
+/* Playlist styling */
 .listItem[data-type="Audio"]:has(.playlistIndexIndicatorImage):not(:hover) {
     background: var(--secondary-background-transparent);
 }
