@@ -1951,8 +1951,8 @@ h3.tagline {
 /* Styles related to the music player interface and the "Now Playing" bar at the bottom. */
 
 /* Margin adjustment for the info container in the desktop Now Playing bar. */
-.layout-desktop .appfooter .nowPlayingBarInfoContainer { 
-    margin-left: 10px !important; 
+.layout-desktop .appfooter .nowPlayingBarInfoContainer {
+    margin-left: 10px !important;
 }
 
 /* Styling for the volume OSD (On-Screen Display) in the desktop layout. */
@@ -2140,6 +2140,11 @@ h3.tagline {
 
 .homeSectionsContainer {
     top: 69vh !important;
+}
+
+/* Add some breathing space for now playing container or others */
+.sections.homeSectionsContainer {
+    padding-bottom: 100px;
 }
 
 /* Standardizes font family for various text elements often found near or related to the media bar. */
