@@ -102,6 +102,22 @@ div#listChildrenCollapsible {
 }
 
 
+/* Music Artist Detail Page Fixes */
+
+.layout-desktop #itemDetailPage:has(.verticalSection[data-type="MusicAlbum"]) .detailPageWrapperContainer {
+    margin-top: 20em !important;
+}
+
+.layout-desktop #itemDetailPage:has(div.detailImageContainer .cardImageIcon.person):has(.verticalSection[data-type="MusicAlbum"]) .mainDetailButtons {
+    top: 0em !important;
+}
+
+
+.layout-desktop #itemDetailPage:has(.listItem[data-type="Audio"]) .nameContainer {
+    margin-top: -4.5em !important;
+}
+
+
 /*
 ================================================================================
 |                        Dashboard Styles

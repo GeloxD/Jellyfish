@@ -1991,10 +1991,10 @@ h3.tagline {
 }
 
 #childrenContent:has(.listItem[data-type="Audio"]) {
-    border: 1px solid var(--alt-accent-color);
     border-radius: var(--rounded-cards);
     padding: .5em;
     background-color: var(--secondary-background-transparent);
+    margin-top: 1.5em;
 }
 
 /* Playlist styling */
