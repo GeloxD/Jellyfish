@@ -7,7 +7,7 @@
 /* 10.11.x+ Detail Page Fixes */
 /* Resize show/movie image on details page for 10.11 */
 .layout-desktop .detailImageContainer .card {
-    top: 1em !important;
+    top: 0em !important;
     width: 18.3vw !important;
     position: absolute !important;
 }
