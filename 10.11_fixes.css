@@ -70,7 +70,6 @@ div#listChildrenCollapsible {
 }
 
 .layout-mobile .detailSectionContent {
-    background: var(--secondary-background-color) !important;
     border-radius: var(--rounded-cards) !important;
     padding: 10px 20px !important;
 }
@@ -104,9 +103,17 @@ div#listChildrenCollapsible {
 
 /* Music Artist Detail Page Fixes */
 
-.layout-desktop #itemDetailPage:has(.verticalSection[data-type="MusicAlbum"]) .detailPageWrapperContainer {
+.layout-desktop #itemDetailPage:has(.verticalSection[data-type="MusicAlbum"]) .detailPageWrapperContainer,
+.layout-tv #itemDetailPage:has(.verticalSection[data-type="MusicAlbum"]) .detailPageWrapperContainer {
     margin-top: 20em !important;
 }
+
+@media (orientation: portrait) {
+    .layout-mobile #itemDetailPage:has(div.detailImageContainer .cardImageIcon.person):has(.verticalSection[data-type="MusicAlbum"]) .itemBackdrop  {
+    height: 30% !important;
+}
+}
+
 
 /* JMP Fix for Detail Page Padding - 10.11 Specific */
 /* Fallback for Jellyfin Media Player without :has() support */
