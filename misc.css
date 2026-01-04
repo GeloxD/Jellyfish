@@ -208,10 +208,9 @@ button.headerButton.mainDrawerButton.barsMenuButton.headerButtonLeft.paper-icon-
 .docspinner {
     position: fixed;
     top: 2em;
-    left: 50%;
-    transform: translateX(-50%);
     width: 3em;
     height: 3em;
     margin: 0;
     pointer-events: none;
+    margin-left: -1.5em;
 }
