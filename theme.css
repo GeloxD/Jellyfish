@@ -2045,6 +2045,7 @@ h3.tagline {
 .layout-desktop #itemDetailPage .trackSelections {
     background: var(--secondary-background-transparent) !important; /* Use theme's transparent background */
     backdrop-filter: blur(var(--blur)) !important; /* Apply theme blur */
+	padding-bottom: 1em !important;
 }
 
 /* == Transparent/Gradient Drawer  == */
