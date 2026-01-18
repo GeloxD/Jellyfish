@@ -2118,7 +2118,7 @@ h3.tagline {
 
 @media (orientation: portrait) {
 .layout-mobile #itemDetailPage:has(div.detailImageContainer .cardImageIcon.person) > .itemBackdrop {
-    height: 20% !important;
+    height: 25% !important;
 }
 
 .layout-mobile #itemDetailPage:has(.cardImageIcon.person) .mainDetailButtons {
