@@ -1075,7 +1075,7 @@ div.card-hoverable.squareCard.card {
 /* General styling for various indicators on cards/list items. */
 .playedIndicator { /* "Watched" checkmark indicator */
     background: #48b648 !important; /* Green background */
-    color: white
+    color: white;
 }
 
 .countIndicator {
