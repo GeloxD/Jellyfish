@@ -2,6 +2,7 @@
 .noHomeButtonHeader .emby-tab-button[data-index="1"] {
   display: none !important;
 }
+a:has([data-testid="FavoriteIcon"]) { display: none !important; }
 
 /* Hide item names on mobile */
 .layout-mobile .detailLogo:not(.hide)~.detailPageWrapperContainer .nameContainer h1 {
@@ -205,4 +206,17 @@ button.headerButton.mainDrawerButton.barsMenuButton.headerButtonLeft.paper-icon-
     margin: 0;
     pointer-events: none;
     margin-left: -1.5em;
+}
+
+
+#indexPage .section0 .sectionTitle {
+    display: none;
+}
+
+#indexPage .section0 {
+    padding-top: 1em;
+}
+
+#indexPage .verticalSection.section0 {
+    padding-top: 3em;
 }
