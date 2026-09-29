@@ -9,6 +9,7 @@
   height: 100vh !important;
   margin-top: -2em !important;
   font-family: 'Quicksand' !important;
+  z-index: auto !important;
 }
 
 .misc-info {
@@ -20,6 +21,7 @@
 /* --- Base Slide Transition (Crossfade) --- */
 .slide {
   transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  z-index: auto !important;
 }
 
 /* --- Content Animation --- */
@@ -32,6 +34,7 @@
   opacity: 0 !important;
   filter: blur(4px) !important;
   transition: opacity 0.8s ease-out, filter 0.8s ease-out !important;
+  z-index: 7 !important;
 }
 
 /* Active state for all content (when slide IS active) - with staggered delay */
@@ -336,4 +339,5 @@
 .mute-button {
   top: auto !important;
   bottom: 10rem !important;
+  z-index: 10 !important;
 }
