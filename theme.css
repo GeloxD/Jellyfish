@@ -851,12 +851,6 @@ progress::-webkit-progress-value  /* Filled part of the progress bar (WebKit) */
 
 /* ~~~~~~~~~~~~~~~~~~~~ LAYOUT - CONTENT AREA ~~~~~~~~~~~~~~~~~~~~ */
 
-/* == Horizontal Scroll Menu Fix == */
-/* Adjusts margin for horizontally scrolling sections (e.g., on home page) to prevent cutoff. */
-.emby-scroller {
-    margin-right: 3.3% !important; /* Consolidated from separate desktop/mobile rules */
-}
-
 /* == Collection Items Alignment Fix (Desktop) == */
 /* Corrects padding for items within a collection view. */
 .layout-desktop .collectionItems .collectionItemsContainer {
