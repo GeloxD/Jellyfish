@@ -839,6 +839,10 @@ progress::-webkit-progress-value  /* Filled part of the progress bar (WebKit) */
     .layout-mobile .libraryPage:not(.noSecondaryNavPage) {
         padding-top: 9.5em !important;
     }
+    /* Jellyfin 12's modern layout already places the page below the header, so that padding is dead space. */
+    .jellyfin-v12 .libraryPage:not(.noSecondaryNavPage) {
+        padding-top: 0 !important;
+    }
     /* Adjust unpinned header transformation when title and tabs are present. */
     .layout-mobile .headroom--unpinned:has(.headerTabs.sectionTabs:not(.hide)):has(.pageTitle:not(.pageTitleWithLogo):not(:empty)) {
         transform: translateY(-60%);
@@ -1107,6 +1111,49 @@ div.card-hoverable.squareCard.card {
     .mediaSourceIndicator {
         border-radius: 0 !important; /* Default square shape for mobile */
         background: #00000085 !important; /* Default dark semi-transparent background */
+    }
+    /* Smaller watched/count indicators so they don't dominate narrow cards. */
+    .playedIndicator, .countIndicator {
+        width: 20px !important;
+        height: 20px !important;
+        min-width: 0;
+        font-size: 12px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+    .playedIndicator .indicatorIcon {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+/* Narrow screens: wrap the library toolbar (title, count, play/shuffle, filter, sort, view, pager)
+   onto two rows instead of overflowing off both screen edges. */
+@media (max-width: 600px) {
+    .MuiToolbar-root:has(.MuiChip-root):has(.MuiButtonGroup-root) {
+        flex-wrap: wrap !important;
+        height: auto !important;
+        row-gap: 4px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+    }
+}
+
+/* Short screens: fit the whole A-Z picker in the viewport (otherwise Y/Z are cut off). */
+@media (max-width: 600px) {
+    .alphaPicker-fixed-right .MuiToggleButtonGroup-vertical {
+        height: calc(100dvh - 156px) !important;
+        max-height: calc(100dvh - 156px);
+    }
+    .alphaPicker-fixed-right .MuiToggleButtonGroup-vertical .MuiToggleButton-root {
+        flex: 1 1 0;
+        min-height: 0;
+        height: auto !important;
+        padding-top: 0;
+        padding-bottom: 0;
+        line-height: 1;
     }
 }
 /* ~~~~~~~~~~~~~~~~~~~~ SEARCH & FILTERING ~~~~~~~~~~~~~~~~~~~~ */
