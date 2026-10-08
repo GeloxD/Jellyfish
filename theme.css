@@ -8,7 +8,7 @@
 */
 
 /* ~~~~~~~~~~~~~~~~~~~~ EXTERNAL IMPORTS ~~~~~~~~~~~~~~~~~~~~ */
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap'); /* Quicksand Font from Google Fonts */
+@import url("https://cdn.jsdelivr.net/gh/n00bcodr/Jellyfish/fonts/quicksand.css"); /* Quicksand Font */
 @import url("https://cdn.jsdelivr.net/gh/Druidblack/jellyfin-icon-metadata/public-icon.css"); /* Metadata icons by Druidblack */
 @import url("https://cdn.jsdelivr.net/gh/n00bcodr/Jellyfish/fonts/materialSymbolsRounded.css");
 @import url("https://cdn.jsdelivr.net/gh/n00bcodr/Jellyfish/loginpage.css");
@@ -17,11 +17,20 @@
 /* ~~~~~~~~~~~~~~~~~~~~ GLOBAL CSS VARIABLES ~~~~~~~~~~~~~~~~~~~~ */
 /* Defines core variables used throughout the theme for consistency. */
 :root {
-    --theme-updated-on: "18 January 2026 - 01:20 P.M."; /* Date of last theme update */
+    --theme-updated-on: "03 October 2026 - 11:40 P.M."; /* Date of last theme update */
     --theme-name: 'Jellyfish';
     --rounded-cards: 15px; /* Standard border-radius */
     --blur: 15px;           /* Default blur intensity */
+    --header-solid-background-color: color-mix(in srgb, var(--secondary-background-color) 85%, rgb(var(--primary-r), var(--primary-g), var(--primary-b)) 15%);
 }
+
+/* NOTE: theme.css is the single stylesheet for the whole theme - the former
+   10.11_fixes.css (dashboard-only, JS-injection workaround) and 12_fixes.css
+   (Jellyfin 12+ React/MUI top bar & nav drawer) are merged in directly below.
+   Regular pages pick this up via Jellyfin's Custom CSS/branding field as usual.
+   The admin dashboard blocks Custom CSS entirely, so its section (marked below)
+   only takes effect when this file is also loaded via JS injection - see
+   scripts/dashboard_theming.js. */
 
 /* ~~~~~~~~~~~~~~~~~~~~ GLOBAL FONT ~~~~~~~~~~~~~~~~~~~~ */
 /* Sets the font for the theme. */
@@ -69,12 +78,19 @@ progress[aria-valuenow]:before,               /* Progress bar fill (pseudo-eleme
 .layout-desktop .dashboardDocument div[data-role="controlgroup"] a.ui-btn-active, /* Active tabs in dashboard control groups (Desktop) */
 .layout-desktop #editItemMetadataPage .btnHeaderSave, /* Save button in metadata editor header (Desktop) */
 .layout-desktop .mainDetailButtons .btnPlay,    /* Play button on details page (Desktop) */
+.layout-desktop .mainDetailButtons .button-flat.btnPlay,    /* Play button on details page (Desktop JMP) */
 .layout-mobile .mainDetailButtons .btnPlay,     /* Play button on details page (Mobile) */
 .layout-tv .mainDetailButtons .btnPlay,     /* Play button on details page (TV) */
 .playbackProgress>div,                        /* Inner bar of playback progress sliders */
 .iconOsdProgressInner                         /* Inner part of OSD circular progress indicators */
 {
     background: var(--primary-accent-color) !important;
+}
+
+/* == Header Nav Active Link Color == */
+/* The desktop header's active top-level nav link (e.g. "Movies") uses MUI's default primary blue instead of the theme accent. */
+header .MuiButton-textPrimary.MuiButton-colorPrimary {
+    color: var(--primary-accent-color) !important;
 }
 
 /* == Secondary Accent Backgrounds == */
@@ -86,9 +102,14 @@ progress[aria-valuenow]:before,               /* Progress bar fill (pseudo-eleme
     background: var(--secondary-accent-color) !important;
 }
 
-.MuiMenu-paper {
-    background: var(--secondary-background-transparent) !important;
-    backdrop-filter: blur(var(--blur)) !important;
+/* Solid, opaque background (see --header-solid-background-color) rather than
+   the 20%-opacity --secondary-background-transparent - a dropdown can open
+   over anything (a bright poster, a busy grid), and a translucent tint plus
+   blur isn't reliably readable against arbitrary content behind it. The
+   class is repeated to out-specificity MUI's own re-injected Paper
+   background (same trick already used on .MuiDrawer-paper below). */
+.MuiMenu-paper.MuiMenu-paper {
+    background: var(--header-solid-background-color) !important;
 }
 
 .formDialogHeader,
@@ -304,10 +325,29 @@ html
 .layout-desktop .detailSectionContent,        /* Content area within detail sections (Desktop) - Consider backdrop transparency rules */
 .layout-mobile .detailSectionContent,         /* Content area within detail sections (Mobile) */
 .layout-tv .detailSectionContent,         /* Content area within detail sections (tv) */
-.trackSelections,                            /* Audio/Subtitle track selection area */
-.MuiPaper-root.MuiPopover-paper
+.trackSelections                            /* Audio/Subtitle track selection area */
 {
     background: var(--secondary-background-transparent) !important;
+}
+
+/* Popovers (sort/filter dropdowns, etc.) can open over anything - a bright
+   poster, a busy grid - so they need the same solid, opaque background as
+   menus (see .MuiMenu-paper above) rather than a translucent tint that reads
+   fine over a drawer's own solid backing but washes out white text over
+   arbitrary page content. The class is repeated to out-specificity MUI's
+   own re-injected Paper background. */
+.MuiPaper-root.MuiPopover-paper.MuiPopover-paper {
+    background: var(--header-solid-background-color) !important;
+}
+
+/* Filter dropdown sections (Filters/Features/Video Type/Genres/etc.) render
+   as MUI Accordions nested inside the popover above - a separate component
+   with its own Paper background, so the popover fix doesn't reach it. Class
+   repeated rather than pinning the generated css-hash suffix (e.g. css-ecgo44)
+   - that hash drifts on every Jellyfin rebuild and silently stops matching,
+   the same failure mode already hit elsewhere in this file. */
+.MuiAccordion-root.MuiAccordion-root {
+    background: var(--header-solid-background-color) !important;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~ DYNAMIC BACKGROUNDS (ACTIVE DEVICES) ~~~~~~~~~~~~~~~~~~~~ */
@@ -642,12 +682,9 @@ progress::-webkit-progress-value  /* Filled part of the progress bar (WebKit) */
     background: var(--secondary-background-color) !important;
 }
 
-/* == Dashboard Top Bar Styling (MUI Override) == */
-/* Removes background and shadow from a Material UI AppBar element likely used in the dashboard top. */
-.css-fknfom { /* This is a generated MUI class name, may be fragile if Jellyfin updates MUI versions/styling */
-        background: none !important;
-        box-shadow: none !important;
-}
+/* Dashboard top bar (MUI AppBar) transparency is handled globally in the
+   "JELLYFIN 12+ (MUI) TOP BAR & NAV DRAWER" section below - it targets
+   .MuiAppBar-root unscoped, which covers the dashboard's AppBar too. */
 
 /* == Sidebar Navigation Buttons == */
 /* Styling for individual navigation options within the sidebar. */
@@ -703,7 +740,7 @@ progress::-webkit-progress-value  /* Filled part of the progress bar (WebKit) */
 }
 /* Adjusts the main page content on the dashboard to accommodate the static sidebar. */
 .layout-desktop .dashboardDocument .mainAnimatedPage {
-    left: 280px !important;
+    left: 260px !important;
 }
 
 .layout-desktop div#dashboardPage {
@@ -802,6 +839,10 @@ progress::-webkit-progress-value  /* Filled part of the progress bar (WebKit) */
     .layout-mobile .libraryPage:not(.noSecondaryNavPage) {
         padding-top: 9.5em !important;
     }
+    /* Jellyfin 12's modern layout already places the page below the header, so that padding is dead space. */
+    .jellyfin-v12 .libraryPage:not(.noSecondaryNavPage) {
+        padding-top: 0 !important;
+    }
     /* Adjust unpinned header transformation when title and tabs are present. */
     .layout-mobile .headroom--unpinned:has(.headerTabs.sectionTabs:not(.hide)):has(.pageTitle:not(.pageTitleWithLogo):not(:empty)) {
         transform: translateY(-60%);
@@ -809,12 +850,6 @@ progress::-webkit-progress-value  /* Filled part of the progress bar (WebKit) */
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~ LAYOUT - CONTENT AREA ~~~~~~~~~~~~~~~~~~~~ */
-
-/* == Horizontal Scroll Menu Fix == */
-/* Adjusts margin for horizontally scrolling sections (e.g., on home page) to prevent cutoff. */
-.emby-scroller {
-    margin-right: 3.3% !important; /* Consolidated from separate desktop/mobile rules */
-}
 
 /* == Collection Items Alignment Fix (Desktop) == */
 /* Corrects padding for items within a collection view. */
@@ -1004,31 +1039,24 @@ div.card-hoverable.squareCard.card {
 
 /* == Home Library Button Hover Effects == */
 /* Adds a border and dimming overlay to home library buttons on hover. */
-a.emby-button.homeLibraryButton.raised {
-    position: relative; /* For pseudo-element positioning */
-    box-sizing: border-box; /* Ensures padding and border are included in width/height */
-    border: 2px solid transparent; /* Transparent border by default to prevent layout shift on hover */
+#homeTab a.emby-button.homeLibraryButton.raised {
     transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    background: var(--primary-accent-color) !important;
+    border-radius: 18px !important;
 }
-a.emby-button.homeLibraryButton.raised:hover {
-    border-color: var(--primary-accent-color) !important; /* Accent border on hover */
-    background-color: rgba(255, 255, 255, 0.1) !important; /* Slight white highlight */
-}
-/* Dimming overlay for home library buttons on hover. */
-a.emby-button.homeLibraryButton.raised:hover::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(31, 31, 31, 0.2); /* Dark semi-transparent overlay */
-    z-index: 1; /* Above the button's background but below its text/icon */
-    transition: background-color 0.1s ease;
-    border-radius: 18px;
+#homeTab a.emby-button.homeLibraryButton.raised:hover {
+    background: var(--primary-accent-color) !important;
+    border-radius: 18px !important;
 }
 
 /* == List Item Image Styling == */
 /* Ensures list item images (e.g., in search results) are contained and rounded. */
 .listItemImage {
     border-radius: var(--rounded-cards);
+}
+
+.listItemImage-large {
+    width: 21.5vw !important;
 }
 
 .listItem[data-mediatype="Video"] > .listItemImage {
@@ -1045,7 +1073,7 @@ a.emby-button.homeLibraryButton.raised:hover::before {
 /* General styling for various indicators on cards/list items. */
 .playedIndicator { /* "Watched" checkmark indicator */
     background: #48b648 !important; /* Green background */
-    color: white
+    color: white;
 }
 
 .countIndicator {
@@ -1078,6 +1106,49 @@ a.emby-button.homeLibraryButton.raised:hover::before {
         border-radius: 0 !important; /* Default square shape for mobile */
         background: #00000085 !important; /* Default dark semi-transparent background */
     }
+    /* Smaller watched/count indicators so they don't dominate narrow cards. */
+    .playedIndicator, .countIndicator {
+        width: 20px !important;
+        height: 20px !important;
+        min-width: 0;
+        font-size: 12px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+    .playedIndicator .indicatorIcon {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+/* Narrow screens: wrap the library toolbar (title, count, play/shuffle, filter, sort, view, pager)
+   onto two rows instead of overflowing off both screen edges. */
+@media (max-width: 600px) {
+    .MuiToolbar-root:has(.MuiChip-root):has(.MuiButtonGroup-root) {
+        flex-wrap: wrap !important;
+        height: auto !important;
+        row-gap: 4px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+    }
+}
+
+/* Short screens: fit the whole A-Z picker in the viewport (otherwise Y/Z are cut off). */
+@media (max-width: 600px) {
+    .alphaPicker-fixed-right .MuiToggleButtonGroup-vertical {
+        height: calc(100dvh - 156px) !important;
+        max-height: calc(100dvh - 156px);
+    }
+    .alphaPicker-fixed-right .MuiToggleButtonGroup-vertical .MuiToggleButton-root {
+        flex: 1 1 0;
+        min-height: 0;
+        height: auto !important;
+        padding-top: 0;
+        padding-bottom: 0;
+        line-height: 1;
+    }
 }
 /* ~~~~~~~~~~~~~~~~~~~~ SEARCH & FILTERING ~~~~~~~~~~~~~~~~~~~~ */
 
@@ -1102,9 +1173,21 @@ a.emby-button.homeLibraryButton.raised:hover::before {
 /* Styles aimed at restoring or customizing the layout of the item details page. */
 
 /* == Detail Image Sizing and Positioning (Desktop) == */
+/* 10.11+ markup: detailImageContainer sits outside infoWrapper, needs absolute positioning */
 .layout-desktop .detailImageContainer .card { /* The main poster/image on the details page */
-    top: 9em !important;      /* Vertical positioning from the top */
-    width: 18.3vw !important; /* Width relative to viewport width */
+    top: 2em !important;       /* Vertical positioning from the top */
+    width: 18.3vw !important;  /* Width relative to viewport width */
+    position: absolute !important;
+    left: 3.3% !important;
+}
+/* Pre-10.11 markup: detailImageContainer is nested inside infoWrapper, so it needs the old offsets */
+.layout-desktop .infoWrapper .detailImageContainer .card {
+    top: 9em !important;
+    left: unset !important;
+}
+.layout-desktop .detailImageContainer {
+    margin-left: 0 !important;
+    margin-top: 0 !important;
 }
 
 /* == Detail Page Content Repositioning (Desktop) == */
@@ -1112,7 +1195,12 @@ a.emby-button.homeLibraryButton.raised:hover::before {
     margin-right: 0 !important; /* Remove any default right margin */
 }
 .layout-desktop .detailPageContent { /* Main content container for details */
-    padding-left: 3.3% !important; /* Original/desired left padding */
+    padding-left: 3.3% !important;  /* Original/desired left padding */
+    padding-right: 0 !important;
+}
+/* 10.11+: title padding needs resetting on the ribbon itself */
+.layout-desktop [dir="ltr"] .detailPagePrimaryContainer:not(.detailRibbon) .detailRibbon {
+    padding-left: unset !important;
 }
 
 /* == Detail Page Logo Positioning and Styling == */
@@ -1232,7 +1320,7 @@ h3.tagline {
     margin-left: 10px !important;
     border: none !important;
     max-width: 70em !important; /* Ensures dropdowns fit within the track selection area */
-    width: 70em !important; /* Matches the width of the track selection area */
+    width: 100% !important;
 }
 
 /* hide the dropdown arrow in track selections */
@@ -1261,13 +1349,6 @@ h3.tagline {
 }
 .layout-desktop .detailPagePrimaryContainer { /* Primary container for the top section of details page */
     padding-left: 3.3% !important; /* Re-affirm padding */
-}
-.layout-desktop .nameContainer { /* Container for the item name/title */
-    position: absolute !important;
-    margin-top: -3em !important; /* Use em units for consistent zoom behavior */
-    display: flex;
-    flex-direction: column; /* Stack title elements vertically */
-    align-items: flex-start;
 }
 .layout-desktop .itemMiscInfo { /* Miscellaneous info like year, runtime, rating */
     position: absolute !important;
@@ -1308,10 +1389,16 @@ h3.tagline {
     display: flex;
     flex-direction: column; /* Stack items vertically */
 }
-.detailSection .detailSectionContent { order: 1; } /* Description first */
+.detailSection .detailSectionContent { order: 0; } /* Description first */
 .detailSection .recordingFields    { order: 2; } /* Recording fields (for Live TV) */
 .detailSection .trackSelections    { order: 3; } /* Audio/Subtitle selection */
-.detailSection .itemDetailsGroup   { order: 4; } /* Other details like genres, ratings */
+.detailSection .itemDetailsGroup   { order: 3; } /* Other details like genres, ratings */
+
+/* 10.11+: nextUp/children sections sit as siblings of detailSection on the wrapper - order them after it */
+.nextUpSection { order: 5 !important; }
+div#listChildrenCollapsible { order: 6 !important; }
+.collectionItems { order: 6 !important; }
+.collectionItems .sectionTitleContainer-cards { padding-left: 0 !important; }
 
 /* == Reordering Episode Title Elements (Desktop) == */
 /* Adjusts the order of parent name (Show Title) and item name (Episode Title) within the name container. */
@@ -1320,13 +1407,17 @@ h3.tagline {
 
 /* == Episode Name Position Modification (Desktop) == */
 .layout-desktop .nameContainer .itemName.infoText.subtitle {
-    margin: .8em 12px !important; /* Consistent margin for original titles or subtitles */
-    padding: 0px !important;     /* Remove default padding if any */
+    margin: 5px 0px !important;
+    padding: 0px !important;
+    font-weight: bolder;
+    font-size: x-large;
 }
 
-/* Hide original title (titles in original language) */
-.nameContainer .itemName.originalTitle {
-    display: none;
+/* Original title (titles in original language) - add a gap after the English title
+   instead of hiding it; the two <h1>/<h4> sit as adjacent siblings in the DOM with
+   no whitespace between them, so without this they run together with no gap. */
+.nameContainer .itemName.withOriginalTitle {
+    padding-right: 0.5em;
 }
 
 .itemDetailsGroup:has(.detailsGroupItem:not(.hide)) {
@@ -1334,6 +1425,8 @@ h3.tagline {
 }
 
 .layout-desktop .nameContainer {
+    position: absolute !important;
+    margin-top: -3em !important; /* Use em units for consistent zoom behavior */
     display: flex;
     justify-content: flex-start;
     flex-wrap: nowrap;
@@ -1354,26 +1447,15 @@ h3.tagline {
     content: " -";
 }
 
-
-.layout-desktop .nameContainer .itemName.infoText.subtitle {
-    margin: 5px 0px !important;
-    padding: 0px !important;
-    font-weight: bolder;
-    font-size: x-large;
+/* Music player: audio listItem name sits higher than the video/movie default */
+.layout-desktop #itemDetailPage:has(.listItem[data-type="Audio"]) .nameContainer {
+    margin-top: -4.5em !important;
 }
 
 
-/* == Play Button Modification == */
-/* Customizes the text and appearance of the main Play button on the details page. */
-.layout-desktop .mainDetailButtons .btnPlay::after,
-.layout-tv .mainDetailButtons .btnPlay::after,
-.layout-mobile .mainDetailButtons .btnPlay::after {
-    content: "Play" !important; /* Custom text for the play button */
-}
 /* Desktop Play Button Styling. */
 .layout-tv .mainDetailButtons .btnPlay, .layout-desktop .mainDetailButtons .btnPlay {
     /* Primary accent background is applied globally, this ensures other properties */
-    padding-right: 20px !important; /* Padding for the custom text */
     margin-right: 0 !important;     /* Reset any conflicting margins */
     right: 0 !important;            /* Reset any conflicting offsets */
     color: var(--text-color) !important;/* Text color for contrast against accent bg */
@@ -1569,8 +1651,8 @@ h3.tagline {
 
 /* == Player Button Icon Override == */
 /* Changes default player icons for rewind/forward to different Material Icons. */
-.material-icons.fast_rewind::before { content: "\e059"; }  /* Changes to 'skip_previous' icon */
-.material-icons.fast_forward::before { content: "\e057"; } /* Changes to 'skip_next' icon */
+.material-icons.fast_rewind::before { content: "\e042"; }
+.material-icons.fast_forward::before { content: "\f6f4"; }
 
 .btnPip {
     display: none !important; /* Hides the Picture-in-Picture button */
@@ -1893,6 +1975,9 @@ h3.tagline {
     border-top-right-radius: var(--rounded-cards) !important;
     border-bottom-right-radius: var(--rounded-cards)  !important;
 }
+body.dashboardDocument .MuiAppBar-root.MuiAppBar-root {
+    background: none !important;
+}
 /* Smaller sidebar width for mobile dashboard. */
 .layout-mobile .MuiPaper-root.MuiDrawer-paperAnchorDockedLeft {
     background: var(--secondary-background-transparent) !important; /* Transparent background on mobile */
@@ -2015,6 +2100,23 @@ h3.tagline {
     background: var(--secondary-background-transparent);
 }
 
+/* == Music Artist Detail Page Fixes == */
+/* Artist page (person + MusicAlbum sections) needs extra top margin to clear the backdrop/buttons */
+.layout-desktop #itemDetailPage:has(.verticalSection[data-type="MusicAlbum"]) .detailPageWrapperContainer,
+.layout-tv #itemDetailPage:has(.verticalSection[data-type="MusicAlbum"]) .detailPageWrapperContainer {
+    margin-top: 20em !important;
+}
+
+.layout-desktop #itemDetailPage:has(div.detailImageContainer .cardImageIcon.person):has(.verticalSection[data-type="MusicAlbum"]) .mainDetailButtons {
+    top: 0em !important;
+}
+
+@media (orientation: portrait) {
+    .layout-mobile #itemDetailPage:has(div.detailImageContainer .cardImageIcon.person):has(.verticalSection[data-type="MusicAlbum"]) .itemBackdrop {
+        height: 30% !important;
+    }
+}
+
 
 /* ~~~~~~~~~~~~~~~~~~~~ LIVE TV ~~~~~~~~~~~~~~~~~~~~ */
 /* Styles specific to the Live TV guide and related elements. */
@@ -2117,24 +2219,35 @@ h3.tagline {
 /* == Hides Backdrop in People Detail page and other adjustments == */
 
 @media (orientation: portrait) {
-.layout-mobile #itemDetailPage:has(div.detailImageContainer .cardImageIcon.person) > .itemBackdrop {
-    height: 25% !important;
+    .layout-mobile #itemDetailPage:has(#itemBirthday:not(.hide)) > .itemBackdrop {
+        display: none;
+    }
+
+    .layout-mobile #itemDetailPage:has(#itemBirthday:not(.hide)) .mainDetailButtons {
+        justify-content: flex-end !important;
+        margin-top: -20vh;
+    }
 }
 
-.layout-mobile #itemDetailPage:has(.cardImageIcon.person) .mainDetailButtons {
-    justify-content: flex-end !important;
-}
+.layout-mobile #itemDetailPage:has(#itemBirthday:not(.hide)) .detailRibbon {
+    display: flex;
+    margin-top: 20vh !important;
 }
 
-.layout-desktop #itemDetailPage:has(div.detailImageContainer .cardImageIcon.person) > .itemBackdrop {
+.layout-desktop #itemDetailPage:has(#itemBirthday:not(.hide)) > .itemBackdrop {
     height: 15% !important;
 }
 
-.layout-desktop #itemDetailPage:has(div.detailImageContainer .cardImageIcon.person) .mainDetailButtons {
+.layout-desktop #itemDetailPage:has(#itemBirthday:not(.hide)) .mainDetailButtons {
     position: absolute !important;
     right: 6em !important;
     top: 6em !important;
 }
+
+.layout-mobile #itemDetailPage:has(#itemBirthday:not(.hide)) .itemsContainer.padded-right.vertical-wrap {
+    width: 100vw !important;
+}
+
 
 /* ~~~~~~~~~~~~~~~~~~~~ RESPONSIVENESS & FIXES ~~~~~~~~~~~~~~~~~~~~ */
 
@@ -2155,15 +2268,16 @@ h3.tagline {
 }
 
 /* == Fixes for TV Layout Header == */
-.layout-tv .sectionTabs { width: auto !important; } /* Ensure tabs fit content */
+.layout-tv .sectionTabs { width: fit-content !important; margin-inline: auto !important; } /* Fit and center tabs */
 .layout-tv .headerLeft { padding: 5px !important; } /* Adjust padding for left header on TV */
 
-/* == Font and Overlap Fixes for Media Bar Area == */
-/* Addresses issues with the first content section overlapping the media bar (Now Playing bar) and standardizes fonts in that area. */
-
-.homeSectionsContainer {
-    top: 69vh !important;
+/* == Backdrop Height (Desktop/TV) == */
+.layout-desktop .itemBackdrop,
+.layout-tv .itemBackdrop {
+    height: 45vh !important;
 }
+
+/* == Font and Overlap Fixes for Media Bar Area == */
 
 /* Add some breathing space for now playing container or others */
 .sections.homeSectionsContainer {
@@ -2278,5 +2392,577 @@ h3.tagline {
         background: var(--secondary-background-color) !important;
         backdrop-filter: none !important;
     }
+    .itemDetailsGroup {
+    background: var(--secondary-background-transparent);
+    padding: 10px 0 0;
+    border-radius: var(--rounded-cards);
+    max-width: 100%;
+    backdrop-filter: blur(var(--blur));
+    }
+
 }
 
+
+/* ~~~~~~~~~~~~~~~~~~~~ TV GUIDE STYLING ~~~~~~~~~~~~~~~~~~~~ */
+/* Styles for the TV guide date selector tabs */
+
+/* Date Selection Container */
+.guideHeaderDateSelection {
+    padding-top: 2em;
+    width: fit-content;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+}
+
+/* Date Tabs Container */
+.guideDateTabs.focuscontainer-x.emby-tabs.focusable.scrollX {
+    border-radius: 100px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 500 ;
+}
+
+/* Date Tabs Slider */
+.emby-tabs-slider.guideDateTabsSlider {
+    background: var(--header-background-color) !important;
+    color: var(--secondary-background-color) !important;
+    backdrop-filter: blur(50px) !important;
+    box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.25) !important;
+    align-items: inherit;
+    padding: 0px 10px;
+    display: flex;
+    gap: 4px;
+}
+
+/* Date Tab Buttons */
+button.emby-tab-button.guide-date-tab-button.emby-button {
+    padding: 15px 20px !important;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+/* Active Date Tab Button */
+button.emby-tab-button.guide-date-tab-button.emby-tab-button-active.emby-button {
+    padding: 12px 24px !important;
+    background: var(--primary-accent-color) !important;
+    color: var(--text-color) !important;
+    box-shadow: 0 4px 12px rgba(var(--primary-r), var(--primary-g), var(--primary-b), 0.3);
+    transform: translateY(-2px);
+}
+
+/* Hover Effects */
+button.emby-tab-button.guide-date-tab-button.emby-button:hover:not(.emby-tab-button-active) {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    transform: translateY(-1px);
+}
+
+/* Focus Effects */
+button.emby-tab-button.guide-date-tab-button.emby-button:focus {
+    outline: 2px solid var(--primary-accent-color);
+    outline-offset: 2px;
+}
+
+/* Button Foreground Content */
+.emby-tab-button .emby-button-foreground {
+    line-height: 1;
+}
+
+/* Responsive Design for TV Guide */
+@media (max-width: 768px) {
+    .guideHeaderDateSelection {
+        padding-top: 1em;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .emby-tabs-slider.guideDateTabsSlider {
+        padding: 6px;
+        gap: 2px;
+    }
+
+    button.emby-tab-button.guide-date-tab-button.emby-button {
+        padding: 10px 16px !important;
+        min-width: 50px;
+        font-size: 0.8rem;
+    }
+
+    button.emby-tab-button.guide-date-tab-button.emby-tab-button-active.emby-button {
+        padding: 10px 20px !important;
+    }
+}
+
+/*
+================================================================================
+|             JELLYFIN 12+ (MUI) TOP BAR & NAV DRAWER                          |
+|  Re-themes the React/MUI "modern" layout's top bar and nav drawer. These     |
+|  selectors are unscoped (.MuiAppBar-root, .MuiToolbar-root, etc.) so they    |
+|  apply everywhere that layout renders, including the admin dashboard - see   |
+|  the DASHBOARD section further below for the dashboard's other JS-injected  |
+|  styles that Custom CSS can't reach.                                         |
+================================================================================
+*/
+
+/* Solid app bar background, tinted with the palette's accent color (see
+   --header-solid-background-color above) - covers the whole bar uniformly
+   rather than leaving it transparent with separate pill-shaped backgrounds
+   per section. --secondary-accent-color was tried first but it's the raw
+   accent color at 60% alpha - too bright/saturated for a full-width bar, and
+   translucent enough that page content bled through on scroll. The MUI
+   AppBar toggles between "colorTransparent"/"colorDefault" variants (e.g. at
+   the top of a page vs scrolled), each carrying its own MUI-supplied
+   background with equal-or-higher selector specificity than a bare
+   .MuiAppBar-root - so both variants are targeted explicitly here to make
+   sure the override actually wins in every state, not just one. */
+.MuiAppBar-root.MuiAppBar-colorTransparent,
+.MuiAppBar-root.MuiAppBar-colorDefault,
+.MuiAppBar-root {
+    background-color: var(--header-solid-background-color) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+/* Keep the toolbar in a single row on all screen sizes */
+.MuiToolbar-root {
+    flex-wrap: nowrap !important;
+}
+
+/* Icon tray: don't stretch the gap; wrap onto a second row instead of overflowing the bar */
+.MuiToolbar-root > .MuiBox-root:has(+ .MuiBox-root [aria-controls="app-user-menu"]) {
+    flex-grow: 0 !important;
+    flex-shrink: 1 !important;
+    flex-wrap: wrap !important;
+    min-width: 0 !important;
+    row-gap: 4px !important;
+    margin-left: auto !important;
+}
+
+/* Icons/nav sit directly on the dark app bar now, so they need a light color.
+   Not var(--text-color): that variable is tuned per-palette for contrast
+   against --primary-accent-color (a bright, saturated color, so text-color
+   is often black), not against --secondary-background-color, which is
+   always a dark surface across every palette - hardcoded white matches that
+   surface reliably regardless of which color scheme is active. */
+.MuiToolbar-root .MuiIconButton-root {
+    color: #ffffff !important;
+    width: 48px !important;
+    height: 48px !important;
+    box-sizing: border-box !important;
+}
+
+.MuiToolbar-root .MuiIconButton-root svg,
+.MuiToolbar-root .MuiIconButton-root .material-icons {
+    font-size: 24px !important;
+}
+
+.MuiToolbar-root .MuiIconButton-root:hover,
+.MuiToolbar-root .MuiIconButton-root:focus-visible {
+    color: var(--primary-accent-color) !important;
+    background-color: var(--primary-background-transparent) !important;
+}
+
+/* Avatar / user menu button */
+.MuiToolbar-root [aria-controls="app-user-menu"] {
+    border-radius: 50% !important;
+}
+.MuiToolbar-root > .MuiBox-root:has([aria-controls="app-user-menu"]) {
+    flex-shrink: 0 !important;
+}
+
+/* Legacy icon buttons still injected into the new toolbar by some plugins */
+.MuiToolbar-root .headerButton.paper-icon-button-light {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    width: 48px !important;
+    height: 48px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 16px !important;
+    color: #ffffff !important;
+}
+
+.MuiToolbar-root .headerButton.paper-icon-button-light > .material-icons {
+    font-size: 24px !important;
+}
+
+.MuiToolbar-root .headerButton.paper-icon-button-light:hover {
+    color: var(--primary-accent-color) !important;
+}
+
+/* Server logo: hide the server name text, replace the bundled icon image with --logo */
+.MuiToolbar-root .MuiButtonBase-root:has(.MuiButton-startIcon img) {
+    font-size: 0 !important;
+    min-width: 0 !important;
+}
+.MuiToolbar-root .MuiButtonBase-root:has(.MuiButton-startIcon img) .MuiButton-startIcon {
+    position: relative !important;
+    width: 5em !important;
+    height: 3em !important;
+    margin: 0 !important;
+    font-size: 16px !important;
+}
+.MuiToolbar-root .MuiButtonBase-root:has(.MuiButton-startIcon img) .MuiButton-startIcon img {
+    visibility: hidden !important;
+}
+.MuiToolbar-root .MuiButtonBase-root:has(.MuiButton-startIcon img) .MuiButton-startIcon::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: var(--logo) no-repeat center center !important;
+    background-size: contain !important;
+}
+
+/* Smaller logo on mobile */
+.layout-mobile .MuiToolbar-root .MuiButtonBase-root:has(.MuiButton-startIcon img) .MuiButton-startIcon {
+    width: 3em !important;
+    height: 2em !important;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~ NAV DRAWER ~~~~~~~~~~~~~~~~~~~~ */
+
+/* Drawer panel background/shape (extra .MuiDrawer-paper repeats boost specificity
+   above MUI's own dynamically-injected styles). Scoped away from the
+   dashboard - its permanent sidebar carries this same generic MUI class,
+   and its high specificity here would otherwise beat the dashboard's own
+   sidebar rules further below (different radius/background intended there). */
+body:not(.dashboardDocument) .MuiDrawer-paper.MuiDrawer-paper.MuiDrawer-paper {
+    background: var(--secondary-background-transparent) !important;
+    backdrop-filter: blur(30px) !important;
+    border-top-right-radius: 30px !important;
+    border-bottom-right-radius: 30px !important;
+}
+
+/* Nav links inside the drawer list. Scoped away from the dashboard
+   (body.dashboardDocument) - .MuiDrawer-paper is a generic MUI class that
+   the dashboard's own permanent sidebar also carries, so without this
+   exclusion these rules (meant for the regular site's slide-out drawer)
+   leak into the dashboard and fight with its own dedicated sidebar rules
+   further below - e.g. this section's width: 85% competing with the
+   dashboard's own width handling produced mismatched pill widths between
+   items depending on which rule happened to win. */
+body:not(.dashboardDocument) .MuiDrawer-paper .MuiListItemButton-root {
+    width: 85% !important;
+    margin: 3px auto !important;
+    border-radius: 10px !important;
+    transition: .2s !important;
+}
+
+body:not(.dashboardDocument) .MuiDrawer-paper .MuiListItemButton-root:hover:not(.Mui-selected) {
+    background: var(--primary-background-transparent) !important;
+    color: var(--primary-accent-color) !important;
+}
+
+body:not(.dashboardDocument) .MuiDrawer-paper .MuiListItemButton-root.Mui-selected {
+    background: var(--secondary-accent-color) !important;
+    color: var(--primary-accent-color) !important;
+}
+
+body:not(.dashboardDocument) .MuiDrawer-paper .MuiListItemIcon-root,
+body:not(.dashboardDocument) .MuiDrawer-paper .MuiListItemButton-root.Mui-selected .MuiListItemIcon-root {
+    color: inherit !important;
+}
+
+/*
+================================================================================
+|             DASHBOARD (JS-INJECTED ONLY - Custom CSS can't reach here)       |
+|  Jellyfin blocks Custom CSS/branding injection on the admin dashboard, so    |
+|  this section only takes effect when this whole file is also loaded via     |
+|  JavaScript injection - see scripts/dashboard_theming.js. A normal @import   |
+|  of theme.css via Custom CSS Code has no effect on these rules.              |
+|  Selectors below are generated MUI/Emotion "css-XXXXXXX" classnames tied to  |
+|  the dashboard's own React bundle - they WILL drift and stop matching every  |
+|  time Jellyfin rebuilds that bundle. Re-verify against the live dashboard    |
+|  DOM after any Jellyfin update and refresh the hashes here if things look    |
+|  unstyled again.                                                              |
+================================================================================
+*/
+
+/* Server info card */
+.css-1787okl, .css-znfy44 {
+  border-radius: 20px !important;
+  background: var(--secondary-background-transparent) !important;
+}
+
+/* Media chips (Movies/Series/Collections counts) */
+.css-1yr4dn5, .css-lh4h8w, .css-nqwc7a, .css-hkers1, .css-11qg7pw, .css-q0e3wl, .css-wnfue5, .css-46ocr5 {
+  border-radius: 20px !important;
+  background: var(--secondary-background-transparent) !important;
+}
+
+/* Activity, Alerts and Paths panels */
+.css-1m91j26, .css-1ypqulw {
+  border-radius: 20px !important;
+  padding: 0px !important;
+  background: var(--alt-accent-color) !important;
+}
+
+/* Devices list, Plugins footer */
+.css-4beb5o, .css-sxfj10, .css-1brmtja, .css-1yd4q9n {
+  background: var(--secondary-background-transparent) !important;
+}
+
+/* Devices card rounding */
+.css-1yd4q9n {
+  border-radius: 20px !important;
+}
+
+/* Bigger and centered server buttons */
+.MuiStack-root.css-11r6nok {
+    height: 3em;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+/* Responsive behavior for small screens - 2x2 grid */
+@media (max-width: 768px) {
+    .MuiStack-root.css-11r6nok {
+        height: auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 0.5em;
+        padding: 0.5em;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .MuiStack-root.css-11r6nok button {
+        height: 2.5em;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* For very small screens - single column if needed */
+@media (max-width: 400px) {
+    .MuiStack-root.css-11r6nok {
+        grid-template-columns: 1fr;
+        max-width: 280px;
+    }
+}
+
+/* Server Buttons */
+.MuiStack-root.css-11r6nok button:nth-child(1) {
+  background: rebeccapurple !important;
+  color: white !important;
+}
+
+.css-jqp64h {
+  background: rebeccapurple !important;
+  color: white !important;
+  border: none !important;
+}
+
+.MuiStack-root.css-11r6nok button:nth-child(2) {
+  background: #ff9800 !important;
+  color: white !important;
+}
+.MuiStack-root.css-11r6nok button:nth-child(3) {
+  background: #f44336 !important;
+  color: white !important;
+}
+
+/* Activity list items */
+.MuiList-root:not(.MuiList-subheader) .MuiListItemButton-root.MuiListItemButton-gutters {
+    padding: 10px 30px 10px 30px !important;
+}
+
+/* Links */
+.css-c4z1po {
+    color: var(--primary-accent-color) !important;
+    --Link-underlineColor: var(--primary-accent-color) !important;
+}
+
+/* Save button and help button */
+.css-ybuz3k, .fab, .raised {
+    color: var(--text-color) !important;
+    background: var(--primary-accent-color) !important;
+}
+
+/* Switches */
+.css-1fmeo47.Mui-checked {
+    color: var(--primary-accent-color);
+}
+.css-1fmeo47.Mui-checked + .MuiSwitch-track {
+    background-color:  var(--secondary-accent-color);
+}
+
+/* Branding buttons */
+.css-1vcmsp6, .css-nu23t2 {
+    border-radius: 15px;
+    font-weight: 600;
+}
+
+/* Devices table */
+.css-mq8hip, tr, tr.MuiTableRow-root.css-vag9oz, .css-j5zxs1, tr.MuiTableRow-root.css-1cksag5  {
+    background-color: transparent !important;
+}
+
+/* Table headers */
+.css-wsew38 {
+    justify-content: flex-end;
+}
+
+input.PrivateSwitchBase-input.css-j8yymo, .css-5191sg.Mui-focused {
+    color: var(--primary-accent-color) !important;
+}
+
+.css-1y99tin::after, .css-g193a2::after {
+  border-bottom: 1px solid var(--primary-accent-color);
+}
+
+/* Checkboxes */
+span.MuiButtonBase-root.MuiCheckbox-root.MuiCheckbox-colorPrimary.MuiCheckbox-sizeMedium.PrivateSwitchBase-root.MuiCheckbox-root.MuiCheckbox-colorPrimary.MuiCheckbox-sizeMedium.Mui-checked.MuiCheckbox-root.MuiCheckbox-colorPrimary.MuiCheckbox-sizeMedium.css-1a194ku {
+    color: var(--primary-accent-color);
+}
+
+/* Buttons in plugin page */
+.css-1ejoxfo, .css-1ejoxfo:hover, .css-1ejoxfo.Mui-focusVisible {
+    background-color: var(--primary-accent-color);
+}
+/* Manage repository button */
+.css-cr7oyo {
+    background-color: var(--secondary-accent-color);
+    color: var(--text-color);
+    border-radius: 20px;
+    font-weight: 500;
+    border: 0;
+}
+
+/* Progress % for scheduled tasks */
+.MuiBox-root.css-lmbv6g {
+    color: var(--primary-accent-color);
+}
+
+/* Dashboard theme update date */
+.css-cdamzk > .css-1787okl::after {
+    content: "Theme last updated on " var(--theme-updated-on, "..........");
+    display: block;
+    background-color: var(--alt-accent-color);
+    border-radius: var(--rounded-cards);
+    padding: 1em;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: bold;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    margin: 10px 0px;
+}
+
+/* Progress track */
+.MuiLinearProgress-root {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--secondary-background-transparent) !important;
+}
+.MuiLinearProgress-bar {
+  border-radius: inherit;
+}
+.MuiLinearProgress-bar2 {
+  opacity: 0.8;
+}
+.css-lmbv6g .MuiTypography-root {
+  font-weight: 600;
+}
+
+/*
+================================================================================
+|                               Dialog Theming
+================================================================================
+*/
+
+/* Dialog container */
+.MuiDialog-paper {
+  border-radius: 20px !important;
+  background: var(--secondary-accent-color) !important;
+  backdrop-filter: blur(100px);
+}
+
+/* Dialog title */
+.MuiDialogTitle-root {
+  font-weight: 700 !important;
+  padding-bottom: 0.5em !important;
+}
+
+/* Dialog body text */
+.MuiDialogContent-root,
+.MuiDialogContentText-root {
+  color: var(--text-color) !important;
+  font-weight: 500 !important;
+}
+
+/* Dialog actions bar */
+.MuiDialogActions-root {
+  padding: 1em 1.5em !important;
+}
+
+/* Buttons */
+.MuiDialogActions-root .MuiButton-text {
+  color: var(--text-color) !important;
+}
+
+/* Destructive buttons (Restart, Shutdown, Delete, etc). Unscoped (not just
+   .MuiDialogActions-root) so it also covers the dashboard's Restart/Shutdown
+   buttons - those use MUI's own semantic "containedError" class rather than
+   a stable hash, unlike the old position-based nth-child selectors this
+   replaced (those broke the moment Jellyfin rebuilt and the dashboard's
+   generated class names shifted). The class is repeated to out-specificity
+   the broad "Primary Accent Backgrounds" rule near the top of this file
+   (.MuiButton-root.MuiButton-containedSizeMedium), which would otherwise
+   paint every contained button - including error ones - the accent color;
+   a plain two-class match ties on specificity but still loses in practice
+   to MUI's own re-injected button styles (same pattern seen elsewhere in
+   this file, e.g. .MuiDrawer-paper.MuiDrawer-paper.MuiDrawer-paper). */
+.MuiButton-root.MuiButton-containedError.MuiButton-containedError {
+  background: #f44336 !important;
+  color: white !important;
+  border-radius: 14px !important;
+  font-weight: 600;
+}
+
+/* == Dashboard Server Action Buttons (Scan/Restart/Shutdown/Refresh Theme) ==
+   Restores the old distinct purple/orange/red/blue 10.11 look. MUI gives
+   Restart and Shutdown the identical "containedError" class (no aria-label
+   or title differs either - checked), so they're told apart by DOM position
+   instead: always the 2nd and 3rd of the 3 native buttons in that Stack
+   (Scan, Restart, Shutdown). The whole group is identified via :has() rather
+   than a generated hash class, so it keeps matching across Jellyfin rebuilds.
+   #theme-refresh-button is our own injected button (see the "New Dashboard
+   Theming" JS Injector script) - it has a stable, hand-assigned id, so no
+   such targeting games are needed for it. */
+.MuiStack-root:has(> .MuiButton-containedError.MuiButton-containedError:nth-child(2)) > button,
+#theme-refresh-button {
+  border-radius: 14px !important;
+  font-weight: 600 !important;
+}
+.MuiStack-root:has(> .MuiButton-containedError.MuiButton-containedError:nth-child(2)) > .MuiButton-containedPrimary.MuiButton-containedPrimary:nth-child(1) {
+  background: rebeccapurple !important;
+  color: white !important;
+}
+.MuiStack-root > .MuiButton-containedError.MuiButton-containedError:nth-child(2) {
+  background: #ff9800 !important;
+}
+#theme-refresh-button {
+  /* Plain native <button>, not a MUI component, so it keeps the browser's
+     default 2px outset border unless reset here - the other three buttons
+     get theirs reset by MUI's own base styles for free. */
+  border: none !important;
+  outline: none !important;
+  cursor: pointer;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px;
+  background: var(--primary-accent-color) !important;
+  color: white !important;
+  height: 44px;
+  padding: 6px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
